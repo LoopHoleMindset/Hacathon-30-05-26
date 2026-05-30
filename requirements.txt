@@ -1,0 +1,11 @@
+flask==3.0.0
+flask-cors==4.0.0
+requests==2.31.0
+beautifulsoup4==4.12.2
+trafilatura==1.6.2
+openai==1.6.1
+tldextract==5.1.1
+html2text==2020.1.16
+lxml==4.9.3
+urllib3==2.1.0
+gunicorn==21.2.0

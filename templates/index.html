@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Intelligence Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .field {
+            margin-bottom: 8px;
+        }
+        
+        .field-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .field-value {
+            color: #666;
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Company Intelligence Platform</h1>
+            <p>AI-Powered Business Insights & Analysis</p>
+        </div>
+        
+        <!-- Enrich Section -->
+        <div class="card">
+            <h2>Enrich Company</h2>
+            <div class="input-group">
+                <label>Company Name (Optional)</label>
+                <input type="text" id="companyName" class="input-field" placeholder="e.g., Acme Corp">
+            </div>
+            <div class="input-group">
+                <label>Company Website URL *</label>
+                <input type="text" id="companyUrl" class="input-field" placeholder="e.g., https://example.com">
+            </div>
+            <button id="enrichBtn" class="btn btn-primary" onclick="enrichCompany()">
+                Enrich Company
+            </button>
+            <button class="btn btn-secondary" onclick="showAllResults()">
+                Show All Results
+            </button>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loading" class="loading card">
+            <div class="spinner"></div>
+            <p>Analyzing company website...</p>
+        </div>
+        
+        <!-- Single Result -->
+        <div id="singleResult" class="card" style="display: none;">
+            <h2>Enrichment Result</h2>
+            <div id="resultContent"></div>
+        </div>
+        
+        <!-- All Results -->
+        <div id="allResults" class="card" style="display: none;">
+            <h2>All Enriched Companies</h2>
+            <div id="allResultsContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        async function enrichCompany() {
+            const url = document.getElementById('companyUrl').value.trim();
+            const companyName = document.getElementById('companyName').value.trim();
+            
+            if (!url) {
+                alert('Please enter a company URL');
+                return;
+            }
+            
+            // Show loading
+            const loading = document.getElementById('loading');
+            const singleResult = document.getElementById('singleResult');
+            const btn = document.getElementById('enrichBtn');
+            
+            loading.style.display = 'block';
+            singleResult.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Enriching...';
+            
+            try {
+                const response = await fetch('/enrich', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        url: url,
+                        company_name: companyName 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displaySingleResult(data);
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to enrich company'));
+                }
+            } catch (error) {
+                alert('Network error: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+                btn.disabled = false;
+                btn.textContent = 'Enrich Company';
+            }
+        }
+        
+        function displaySingleResult(data) {
+            const singleResult = document.getElementById('singleResult');
+            const content = document.getElementById('resultContent');
+            
+            let html = `
+                <div class="result-card">
+                    <h3>${data.company_name || 'N/A'}</h3>
+                    <div class="field">
+                        <span class="field-label">Website:</span>
+                        <span class="field-value">${data.website || 'N/A'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Industry:</span>
+                        <span class="field-value">${data.industry || 'N/A'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Description:</span>
+                        <span class="field-value">${data.description || 'N/A'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Address:</span>
+                        <span class="field-value">${data.address || 'N/A'}</span>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Emails:</span>
+                        <div class="tags">
+                            ${(data.emails || []).length > 0 
+                                ? data.emails.map(e => `<span class="tag">${e}</span>`).join('') 
+                                : '<span style="color: #999;">N/A</span>'}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Phone Numbers:</span>
+                        <div class="tags">
+                            ${(data.phone_numbers || []).length > 0 
+                                ? data.phone_numbers.map(p => `<span class="tag">${p}</span>`).join('') 
+                                : '<span style="color: #999;">N/A</span>'}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <span class="field-label">Services:</span>
+                        <div class="tags">
+                            ${(data.services || []).length > 0 
+                                ? data.services.map(s => `<span class="tag">${s}</span>`).join('') 
+                                : '<span style="color: #999;">N/A</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+            singleResult.style.display = 'block';
+            document.getElementById('allResults').style.display = 'none';
+        }
+        
+        async function showAllResults() {
+            const allResults = document.getElementById('allResults');
+            const content = document.getElementById('allResultsContent');
+            
+            try {
+                const response = await fetch('/results');
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    content.innerHTML = '<div class="empty-state">No companies enriched yet. Use the form above to get started!</div>';
+                } else {
+                    let html = '<table><thead><tr><th>Company</th><th>Website</th><th>Industry</th><th>Emails</th><th>Phones</th></tr></thead><tbody>';
+                    
+                    data.forEach(company => {
+                        html += `
+                            <tr>
+                                <td><strong>${company.company_name || 'N/A'}</strong></td>
+                                <td>${company.website || 'N/A'}</td>
+                                <td>${company.industry || 'N/A'}</td>
+                                <td>${(company.emails || []).join(', ') || 'N/A'}</td>
+                                <td>${(company.phone_numbers || []).join(', ') || 'N/A'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += '</tbody></table>';
+                    content.innerHTML = html;
+                }
+                
+                allResults.style.display = 'block';
+                document.getElementById('singleResult').style.display = 'none';
+            } catch (error) {
+                alert('Error fetching results: ' + error.message);
+            }
+        }
+        
+        // Handle Enter key in URL field
+        document.getElementById('companyUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                enrichCompany();
+            }
+        });
+    </script>
+</body>
+</html>
